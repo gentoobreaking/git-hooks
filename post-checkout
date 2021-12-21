@@ -1,0 +1,20 @@
+#!/bin/bash
+
+export basebranch="$(git branch --show-current)"
+echo -e " - base branch:${basebranch}"
+
+sync_files()
+{
+echo " - sync file(s) from master branch."
+
+git switch stage
+git branch
+git diff master stage --name-only|grep -Ev 'conf/nginx/nginx.conf|sync_master.sh'|sed 's/.*/"&"/'|xargs git checkout master
+git commit -m 'Merging files excluding conf/nginx/nginx.conf into stage branch.'
+git push
+}
+
+[ "${basebranch}" == "master" ] && exit
+[ "${basebranch}" == "stage" ] && sync_files
+
+# --- END --- #
